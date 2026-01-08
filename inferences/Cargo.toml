@@ -1,0 +1,12 @@
+[package]
+name = "inferences"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+actix-web = "4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+onnxruntime = { version = "0.17.0", features = ["cpu"] }
+tokio = { version = "1", features = ["full"] }

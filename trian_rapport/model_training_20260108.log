@@ -1,0 +1,47 @@
+2026-01-08 22:39:15,437 - __main__ - INFO - Configuration initialisée: ModelConfig(data_path='dataset_strict_7features.csv', total_samples=1000, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, input_size=7, hidden_sizes=(16, 8), dropout_rate=0.2, normalization='layer', activation='relu', batch_size=32, learning_rate=0.001, weight_decay=0.0001, epochs=200, early_stopping_patience=25, lr_patience=10, lr_factor=0.5, min_lr=1e-06, gradient_clip=1.0, threshold_range=(0.1, 0.9), threshold_steps=81, calibration_method='isotonic', calibration_cv=5, n_permutations=100, confidence_intervals=True, ci_level=0.95, random_seed=42, device='cpu', save_format='torchscript', compression=True)
+2026-01-08 22:39:15,438 - __main__ - INFO - ================================================================================
+2026-01-08 22:39:15,438 - __main__ - INFO - 🚀 DÉMARRAGE DU PIPELINE ML PROFESSIONNEL
+2026-01-08 22:39:15,438 - __main__ - INFO - ================================================================================
+2026-01-08 22:39:15,439 - __main__ - INFO - 
+1️⃣  PHASE 1: GESTION DES DONNÉES
+2026-01-08 22:39:15,439 - __main__ - INFO - 📊 CHARGEMENT ET VALIDATION DES DONNÉES
+2026-01-08 22:39:15,442 - __main__ - INFO - Données chargées: (1000, 8)
+2026-01-08 22:39:15,444 - __main__ - WARNING - Outliers détectés dans Assiduite_ordinal: 25
+2026-01-08 22:39:15,448 - __main__ - INFO - Statistiques calculées et sauvegardées
+2026-01-08 22:39:15,448 - __main__ - INFO - Création des splits stratifiés
+2026-01-08 22:39:15,452 - __main__ - INFO -   train: 700 samples, réussite: 81.7%
+2026-01-08 22:39:15,452 - __main__ - INFO -   val: 150 samples, réussite: 82.0%
+2026-01-08 22:39:15,453 - __main__ - INFO -   test: 150 samples, réussite: 82.0%
+2026-01-08 22:39:15,453 - __main__ - INFO - Normalisation Min-Max
+2026-01-08 22:39:15,456 - __main__ - INFO - 
+2️⃣  PHASE 2: INITIALISATION DU MODÈLE
+2026-01-08 22:39:15,457 - __main__ - INFO - Architecture: 7 → 16 → 8 → 1
+2026-01-08 22:39:15,458 - __main__ - INFO - Paramètres: 321
+2026-01-08 22:39:15,458 - __main__ - INFO - Normalisation: layer
+2026-01-08 22:39:15,458 - __main__ - INFO - 
+3️⃣  PHASE 3: ENTRAÎNEMENT AVANCÉ
+2026-01-08 22:39:16,402 - __main__ - INFO - Trainer initialisé sur cpu
+2026-01-08 22:39:16,402 - __main__ - INFO - 🚀 Début de l'entraînement
+2026-01-08 22:39:16,476 - __main__ - INFO - Epoch   1/200 | Time: 0.1s | LR: 0.001000 | Train Loss: 0.6149 | Val Loss: 0.5415 | Val F1: 0.901
+2026-01-08 22:39:17,190 - __main__ - INFO - Epoch  10/200 | Time: 0.1s | LR: 0.001000 | Train Loss: 0.4611 | Val Loss: 0.4339 | Val F1: 0.900
+2026-01-08 22:39:17,980 - __main__ - INFO - Epoch  20/200 | Time: 0.1s | LR: 0.001000 | Train Loss: 0.4333 | Val Loss: 0.4137 | Val F1: 0.900
+2026-01-08 22:39:18,698 - __main__ - INFO - Epoch  30/200 | Time: 0.1s | LR: 0.001000 | Train Loss: 0.4368 | Val Loss: 0.4036 | Val F1: 0.913
+2026-01-08 22:39:19,480 - __main__ - INFO - Epoch  40/200 | Time: 0.1s | LR: 0.001000 | Train Loss: 0.4021 | Val Loss: 0.4026 | Val F1: 0.905
+2026-01-08 22:39:20,273 - __main__ - INFO - Epoch  50/200 | Time: 0.1s | LR: 0.000500 | Train Loss: 0.4077 | Val Loss: 0.4039 | Val F1: 0.908
+2026-01-08 22:39:20,966 - __main__ - INFO - Epoch  60/200 | Time: 0.1s | LR: 0.000250 | Train Loss: 0.3877 | Val Loss: 0.4072 | Val F1: 0.908
+2026-01-08 22:39:21,185 - __main__ - INFO - Early stopping à l'epoch 63
+2026-01-08 22:39:21,807 - __main__ - INFO - ✅ Entraînement terminé en 5.4s
+2026-01-08 22:39:21,815 - __main__ - INFO - 
+4️⃣  PHASE 4: ÉVALUATION PROFESSIONNELLE
+2026-01-08 22:39:21,815 - __main__ - INFO - 📊 Évaluation complète
+2026-01-08 22:39:21,839 - __main__ - INFO - Calcul de l'importance des features avec CI
+2026-01-08 22:39:23,559 - __main__ - INFO - 
+5️⃣  PHASE 5: RÉSULTATS
+2026-01-08 22:39:23,559 - __main__ - INFO - ==================================================
+2026-01-08 22:39:23,559 - __main__ - INFO - 
+6️⃣  PHASE 6: ANALYSE DES FEATURES
+2026-01-08 22:39:23,560 - __main__ - INFO - 
+7️⃣  PHASE 7: SAUVEGARDE PROFESSIONNELLE
+2026-01-08 22:39:23,564 - __main__ - INFO - ✅ Checkpoint sauvegardé: student_model_pro_20260108_223923.pth
+2026-01-08 22:39:23,564 - __main__ - INFO - ✅ Checkpoint pickle sauvegardé: student_model_pro_20260108_223923.pkl
+2026-01-08 22:39:23,640 - __main__ - INFO - ✅ Modèle exporté en TorchScript: student_model_ts_20260108_223923.pt
