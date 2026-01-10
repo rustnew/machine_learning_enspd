@@ -1,0 +1,34 @@
+{
+  "model_info": {
+    "format": "ONNX",
+    "opset_version": 14,
+    "input_shape": [
+      1,
+      7
+    ],
+    "features": [
+      "Niveau_etude",
+      "Heures_etude_ordinal",
+      "Planning_ordinal",
+      "Assiduite_ordinal",
+      "Environnement_ordinal",
+      "Sommeil_score",
+      "Qualite_ordinal"
+    ],
+    "export_date": "2026-01-09"
+  },
+  "inference": {
+    "threshold": 0.61,
+    "input_range": [
+      0.0,
+      1.0
+    ],
+    "output_type": "logits"
+  },
+  "rust_config": {
+    "input_name": "features",
+    "output_name": "logits",
+    "dtype": "f32",
+    "requires_sigmoid": true
+  }
+}

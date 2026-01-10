@@ -1,4 +1,4 @@
-# 🎓 **MLP pour la Prédiction de Réussite Académique**
+# **MLP pour la Prédiction de Réussite Académique**
 
 ## 📋 **Table des Matières**
 - [🎯 Objectif du Projet](#-objectif-du-projet)

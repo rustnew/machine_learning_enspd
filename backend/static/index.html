@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Prédiction de Réussite Étudiante</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-graduation-cap"></i> Prédiction de Réussite Étudiante</h1>
+            <p class="subtitle">Analyse prédictive basée sur 7 facteurs clés de réussite</p>
+        </header>
+
+        <div class="app-container">
+            <!-- Formulaire de saisie -->
+            <div class="form-container">
+                <h2><i class="fas fa-edit"></i> Données de l'Étudiant</h2>
+                
+                <form id="prediction-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="niveau_etude">
+                                <i class="fas fa-university"></i> Niveau d'étude
+                                <span class="info" title="Niveau académique actuel (0=faible, 1=excellent)">ℹ️</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="niveau_etude" min="0" max="100" value="50" step="1">
+                                <div class="slider-value">
+                                    <span id="niveau_etude_value">0.50</span>
+                                    <div class="slider-labels">
+                                        <span>Faible</span>
+                                        <span>Excellent</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="heures_etude_ordinal">
+                                <i class="fas fa-clock"></i> Heures d'étude
+                                <span class="info" title="Nombre d'heures consacrées aux études">ℹ️</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="heures_etude_ordinal" min="0" max="100" value="50" step="1">
+                                <div class="slider-value">
+                                    <span id="heures_etude_ordinal_value">0.50</span>
+                                    <div class="slider-labels">
+                                        <span>Faible</span>
+                                        <span>Élevé</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="planning_ordinal">
+                                <i class="fas fa-calendar-alt"></i> Planning
+                                <span class="info" title="Qualité de l'organisation du temps">ℹ️</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="planning_ordinal" min="0" max="100" value="50" step="1">
+                                <div class="slider-value">
+                                    <span id="planning_ordinal_value">0.50</span>
+                                    <div class="slider-labels">
+                                        <span>Désorganisé</span>
+                                        <span>Structuré</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="assiduite_ordinal">
+                                <i class="fas fa-calendar-check"></i> Assiduité
+                                <span class="info" title="Régularité et présence">ℹ️</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="assiduite_ordinal" min="0" max="100" value="50" step="1">
+                                <div class="slider-value">
+                                    <span id="assiduite_ordinal_value">0.50</span>
+                                    <div class="slider-labels">
+                                        <span>Irregulier</span>
+                                        <span>Assidu</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="environnement_ordinal">
+                                <i class="fas fa-home"></i> Environnement
+                                <span class="info" title="Qualité du cadre d'étude">ℹ️</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="environnement_ordinal" min="0" max="100" value="50" step="1">
+                                <div class="slider-value">
+                                    <span id="environnement_ordinal_value">0.50</span>
+                                    <div class="slider-labels">
+                                        <span>Défavorable</span>
+                                        <span>Favorable</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sommeil_score">
+                                <i class="fas fa-bed"></i> Qualité de sommeil
+                                <span class="info" title="Repos et qualité du sommeil">ℹ️</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="sommeil_score" min="0" max="100" value="50" step="1">
+                                <div class="slider-value">
+                                    <span id="sommeil_score_value">0.50</span>
+                                    <div class="slider-labels">
+                                        <span>Mauvais</span>
+                                        <span>Excellent</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="qualite_ordinal">
+                                <i class="fas fa-brain"></i> Qualité d'étude
+                                <span class="info" title="Efficacité des méthodes d'étude">ℹ️</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="qualite_ordinal" min="0" max="100" value="50" step="1">
+                                <div class="slider-value">
+                                    <span id="qualite_ordinal_value">0.50</span>
+                                    <div class="slider-labels">
+                                        <span>Faible</span>
+                                        <span>Élevée</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="btn-preset-good" class="btn btn-secondary">
+                            <i class="fas fa-star"></i> Étudiant modèle
+                        </button>
+                        <button type="button" id="btn-preset-average" class="btn btn-secondary">
+                            <i class="fas fa-user-graduate"></i> Étudiant moyen
+                        </button>
+                        <button type="button" id="btn-preset-poor" class="btn btn-secondary">
+                            <i class="fas fa-exclamation-triangle"></i> Difficultés
+                        </button>
+                        <button type="submit" id="btn-predict" class="btn btn-primary">
+                            <i class="fas fa-calculator"></i> Analyser la Réussite
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Résultats -->
+            <div class="results-container" id="results-container" style="display: none;">
+                <h2><i class="fas fa-chart-line"></i> Résultats de l'Analyse</h2>
+                
+                <div class="prediction-card">
+                    <div class="prediction-header">
+                        <div class="probability-circle">
+                            <svg width="120" height="120">
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="#e0e0e0" stroke-width="12"/>
+                                <circle id="probability-circle" cx="60" cy="60" r="54" fill="none" 
+                                        stroke="#4CAF50" stroke-width="12" stroke-linecap="round" 
+                                        stroke-dasharray="339.292" stroke-dashoffset="339.292"/>
+                                <text id="probability-text" x="60" y="60" text-anchor="middle" 
+                                      dy=".3em" font-size="24" font-weight="bold">0%</text>
+                            </svg>
+                        </div>
+                        <div class="prediction-summary">
+                            <h3 id="prediction-title">RÉSULTAT</h3>
+                            <div class="confidence-level">
+                                <span id="confidence-color">🟢</span>
+                                <span id="confidence-text">Confiance: TRÈS ÉLEVÉE</span>
+                            </div>
+                            <p id="prediction-message" class="prediction-message"></p>
+                        </div>
+                    </div>
+
+                    <div class="recommendation-box">
+                        <h4><i class="fas fa-lightbulb"></i> Recommandation</h4>
+                        <p id="recommendation-text"></p>
+                    </div>
+
+                    <div class="features-analysis">
+                        <h4><i class="fas fa-chart-bar"></i> Analyse des Facteurs</h4>
+                        <div id="features-grid" class="features-grid"></div>
+                    </div>
+
+                    <div class="metadata">
+                        <p><i class="fas fa-info-circle"></i> <strong>Seuil de décision:</strong> 0.61</p>
+                        <p><i class="fas fa-clock"></i> <strong>Analyse effectuée le:</strong> <span id="timestamp"></span></p>
+                        <p><i class="fas fa-code-branch"></i> <strong>Version modèle:</strong> 2.0.0</p>
+                    </div>
+
+                    <div class="actions">
+                        <button id="btn-new-analysis" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Nouvelle Analyse
+                        </button>
+                        <button id="btn-share" class="btn btn-secondary">
+                            <i class="fas fa-share-alt"></i> Partager
+                        </button>
+                        <button id="btn-export" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Exporter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-cogs"></i> Modèle IA</h4>
+                    <p>Réseau neuronal à 3 couches (7→16→8→1)</p>
+                    <p>Entraîné sur 1000 échantillons étudiants</p>
+                    <p>Précision: 84% | F1-Score: 90.5%</p>
+                </div>
+                <div class="footer-section">
+                    <h4><i class="fas fa-bullseye"></i> Facteurs Clés</h4>
+                    <p>1. Qualité d'étude (22.2%)</p>
+                    <p>2. Heures d'étude (17.7%)</p>
+                    <p>3. Niveau d'étude (9.4%)</p>
+                </div>
+                <div class="footer-section">
+                    <h4><i class="fas fa-server"></i> API</h4>
+                    <p><code>POST /api/predict</code> - Prédiction simple</p>
+                    <p><code>POST /api/batch-predict</code> - Multiples</p>
+                    <p>Modèle: ONNX | Runtime: Rust Actix</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>🎓 Système de Prédiction de Réussite Étudiante - Version 2.0.0</p>
+                <p>Développé avec PyTorch, ONNX et Rust</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="loader" style="display: none;">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p>Analyse en cours...</p>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
