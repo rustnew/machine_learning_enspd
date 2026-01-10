@@ -1,291 +1,394 @@
-// Configuration
-const API_BASE_URL = window.location.origin;
-const MODEL_THRESHOLD = 0.61;
-
-// Éléments DOM
-const form = document.getElementById('prediction-form');
-const resultsContainer = document.getElementById('results-container');
-const loader = document.getElementById('loader');
-const notification = document.getElementById('notification');
-
-// Initialisation des sliders
-const sliders = [
-    'niveau_etude', 'heures_etude_ordinal', 'planning_ordinal',
-    'assiduite_ordinal', 'environnement_ordinal', 'sommeil_score', 'qualite_ordinal'
+// Configuration des caractéristiques
+const featuresConfig = [
+    {
+        id: 'niveau_etude',
+        name: 'Niveau d\'Étude',
+        icon: 'fas fa-graduation-cap',
+        description: 'Niveau académique actuel',
+        min: 0,
+        max: 1,
+        step: 0.01,
+        value: 0.7
+    },
+    {
+        id: 'heures_etude_ordinal',
+        name: 'Heures d\'Étude',
+        icon: 'fas fa-clock',
+        description: 'Heures par semaine dédiées à l\'étude',
+        min: 0,
+        max: 1,
+        step: 0.01,
+        value: 0.6
+    },
+    {
+        id: 'planning_ordinal',
+        name: 'Planification',
+        icon: 'fas fa-calendar-alt',
+        description: 'Organisation des sessions d\'étude',
+        min: 0,
+        max: 1,
+        step: 0.01,
+        value: 0.5
+    },
+    {
+        id: 'assiduite_ordinal',
+        name: 'Assiduité',
+        icon: 'fas fa-user-check',
+        description: 'Taux de présence aux cours',
+        min: 0,
+        max: 1,
+        step: 0.01,
+        value: 0.8
+    },
+    {
+        id: 'environnement_ordinal',
+        name: 'Environnement',
+        icon: 'fas fa-home',
+        description: 'Qualité de l\'environnement d\'étude',
+        min: 0,
+        max: 1,
+        step: 0.01,
+        value: 0.9
+    },
+    {
+        id: 'sommeil_score',
+        name: 'Qualité de Sommeil',
+        icon: 'fas fa-bed',
+        description: 'Durée et qualité du repos quotidien',
+        min: 0,
+        max: 1,
+        step: 0.01,
+        value: 0.7
+    },
+    {
+        id: 'qualite_ordinal',
+        name: 'Qualité d\'Étude',
+        icon: 'fas fa-star',
+        description: 'Concentration et efficacité',
+        min: 0,
+        max: 1,
+        step: 0.01,
+        value: 0.6
+    }
 ];
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', () => {
-    initializeSliders();
-    setupEventListeners();
-    showNotification('Prêt à analyser ! Déplacez les curseurs pour simuler un profil étudiant.', 'info');
-});
-
-function initializeSliders() {
-    sliders.forEach(sliderId => {
-        const slider = document.getElementById(sliderId);
-        const valueDisplay = document.getElementById(`${sliderId}_value`);
-        
-        // Initial value
-        valueDisplay.textContent = (slider.value / 100).toFixed(2);
-        
-        // Update on change
-        slider.addEventListener('input', () => {
-            const value = slider.value / 100;
-            valueDisplay.textContent = value.toFixed(2);
-        });
-    });
-}
-
-function setupEventListeners() {
-    // Form submission
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await predict();
-    });
+// Initialisation de l'interface
+function initInterface() {
+    const container = document.getElementById('featuresContainer');
     
-    // Preset buttons
-    document.getElementById('btn-preset-good').addEventListener('click', () => setPreset('good'));
-    document.getElementById('btn-preset-average').addEventListener('click', () => setPreset('average'));
-    document.getElementById('btn-preset-poor').addEventListener('click', () => setPreset('poor'));
-    
-    // Results actions
-    document.getElementById('btn-new-analysis').addEventListener('click', resetForm);
-    document.getElementById('btn-share').addEventListener('click', shareResults);
-    document.getElementById('btn-export').addEventListener('click', exportResults);
-}
-
-function getFeatures() {
-    return {
-        niveau_etude: parseFloat(document.getElementById('niveau_etude').value) / 100,
-        heures_etude_ordinal: parseFloat(document.getElementById('heures_etude_ordinal').value) / 100,
-        planning_ordinal: parseFloat(document.getElementById('planning_ordinal').value) / 100,
-        assiduite_ordinal: parseFloat(document.getElementById('assiduite_ordinal').value) / 100,
-        environnement_ordinal: parseFloat(document.getElementById('environnement_ordinal').value) / 100,
-        sommeil_score: parseFloat(document.getElementById('sommeil_score').value) / 100,
-        qualite_ordinal: parseFloat(document.getElementById('qualite_ordinal').value) / 100
-    };
-}
-
-async function predict() {
-    showLoader();
-    
-    const features = getFeatures();
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/predict`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(features)
-        });
-        
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-            displayResults(data.data);
-            showNotification('Analyse terminée avec succès !', 'success');
-        } else {
-            throw new Error(data.error || 'Erreur inconnue');
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        showNotification(`Erreur: ${error.message}`, 'error');
-    } finally {
-        hideLoader();
-    }
-}
-
-function displayResults(result) {
-    // Update probability circle
-    const circle = document.getElementById('probability-circle');
-    const text = document.getElementById('probability-text');
-    const probability = result.probability * 100;
-    const circumference = 2 * Math.PI * 54;
-    const offset = circumference - (probability / 100) * circumference;
-    
-    circle.style.strokeDashoffset = offset;
-    text.textContent = `${probability.toFixed(1)}%`;
-    
-    // Update prediction title
-    const title = document.getElementById('prediction-title');
-    if (result.success) {
-        title.textContent = '🎓 RÉUSSITE PRÉDITE';
-        title.style.color = '#27ae60';
-        circle.style.stroke = '#27ae60';
-    } else {
-        title.textContent = '⚠️ ÉCHEC PRÉDIT';
-        title.style.color = '#e74c3c';
-        circle.style.stroke = '#e74c3c';
-    }
-    
-    // Update confidence
-    document.getElementById('confidence-color').textContent = result.confidence_color;
-    document.getElementById('confidence-text').textContent = `Confiance: ${result.confidence}`;
-    document.getElementById('prediction-message').textContent = result.message;
-    document.getElementById('recommendation-text').textContent = result.recommendation;
-    document.getElementById('timestamp').textContent = new Date(result.timestamp).toLocaleString();
-    
-    // Display features analysis
-    const featuresGrid = document.getElementById('features-grid');
-    featuresGrid.innerHTML = '';
-    
-    result.features_analysis.forEach(feature => {
-        const featureItem = document.createElement('div');
-        featureItem.className = 'feature-item';
-        
-        // Determine color based on value
-        let color = '#e74c3c'; // red
-        if (feature.value > 0.8) color = '#27ae60'; // green
-        else if (feature.value > 0.6) color = '#3498db'; // blue
-        else if (feature.value > 0.4) color = '#f39c12'; // orange
-        
-        featureItem.style.borderLeftColor = color;
-        
-        featureItem.innerHTML = `
-            <div class="feature-header">
-                <span class="feature-name">${feature.name}</span>
-                <span class="feature-value">${feature.value.toFixed(2)}</span>
-            </div>
-            <div class="feature-impact" style="background: ${color}20; color: ${color};">
-                ${feature.color} ${feature.impact}
+    featuresConfig.forEach(feature => {
+        const sliderHTML = `
+            <div class="feature-slider">
+                <div class="feature-header">
+                    <div class="feature-name">
+                        <i class="${feature.icon}"></i>
+                        ${feature.name}
+                    </div>
+                    <div class="feature-value" id="${feature.id}-value">
+                        ${feature.value.toFixed(2)}
+                    </div>
+                </div>
+                
+                <div class="slider-container">
+                    <input type="range" 
+                           id="${feature.id}" 
+                           min="${feature.min}" 
+                           max="${feature.max}" 
+                           step="${feature.step}" 
+                           value="${feature.value}"
+                           oninput="updateSliderValue('${feature.id}', this.value)"
+                           class="feature-slider-input">
+                    <div class="slider-labels">
+                        <span>Faible</span>
+                        <span>Moyen</span>
+                        <span>Fort</span>
+                    </div>
+                </div>
+                
+                <div class="feature-description">
+                    ${feature.description}
+                </div>
             </div>
         `;
         
-        featuresGrid.appendChild(featureItem);
+        container.innerHTML += sliderHTML;
     });
-    
-    // Show results
-    resultsContainer.style.display = 'block';
-    resultsContainer.scrollIntoView({ behavior: 'smooth' });
 }
 
-function setPreset(type) {
-    const presets = {
-        good: [90, 85, 80, 95, 90, 85, 95],
-        average: [60, 50, 40, 70, 60, 50, 60],
-        poor: [30, 20, 10, 40, 30, 20, 25]
-    };
+// Mise à jour des valeurs des curseurs
+function updateSliderValue(id, value) {
+    const valueElement = document.getElementById(`${id}-value`);
+    const floatValue = parseFloat(value);
+    valueElement.textContent = floatValue.toFixed(2);
     
-    const values = presets[type];
-    
-    sliders.forEach((sliderId, index) => {
-        const slider = document.getElementById(sliderId);
-        const valueDisplay = document.getElementById(`${sliderId}_value`);
+    valueElement.classList.add('updated');
+    setTimeout(() => {
+        valueElement.classList.remove('updated');
+    }, 300);
+}
+
+// Génération d'un profil aléatoire
+function generateRandom() {
+    featuresConfig.forEach(feature => {
+        const randomValue = Math.max(0, Math.min(1, 
+            (Math.random() * 0.4) + 0.4
+        )).toFixed(2);
         
-        slider.value = values[index];
-        valueDisplay.textContent = (values[index] / 100).toFixed(2);
+        const slider = document.getElementById(feature.id);
+        const valueElement = document.getElementById(`${feature.id}-value`);
+        
+        slider.value = randomValue;
+        valueElement.textContent = randomValue;
     });
     
-    const presetNames = {
-        good: 'Excellent',
-        average: 'Moyen',
-        poor: 'Difficultés'
-    };
-    
-    showNotification(`Profil "${presetNames[type]}" appliqué !`, 'info');
+    showNotification('Profil aléatoire généré', 'info');
 }
 
+// Réinitialisation du formulaire
 function resetForm() {
-    sliders.forEach(sliderId => {
-        const slider = document.getElementById(sliderId);
-        const valueDisplay = document.getElementById(`${sliderId}_value`);
+    featuresConfig.forEach(feature => {
+        const slider = document.getElementById(feature.id);
+        const valueElement = document.getElementById(`${feature.id}-value`);
         
-        slider.value = 50;
-        valueDisplay.textContent = '0.50';
+        slider.value = feature.value;
+        valueElement.textContent = feature.value.toFixed(2);
     });
     
-    resultsContainer.style.display = 'none';
+    document.getElementById('resultsPlaceholder').style.display = 'block';
+    document.getElementById('resultsContainer').style.display = 'none';
+    document.getElementById('detailedResults').innerHTML = '';
+    
     showNotification('Formulaire réinitialisé', 'info');
 }
 
-function shareResults() {
-    const features = getFeatures();
-    const text = `🎓 Analyse de réussite étudiante:\n` +
-                 `Niveau: ${features.niveau_etude.toFixed(2)}\n` +
-                 `Heures: ${features.heures_etude_ordinal.toFixed(2)}\n` +
-                 `Planning: ${features.planning_ordinal.toFixed(2)}\n` +
-                 `Assiduité: ${features.assiduite_ordinal.toFixed(2)}\n` +
-                 `Environnement: ${features.environnement_ordinal.toFixed(2)}\n` +
-                 `Sommeil: ${features.sommeil_score.toFixed(2)}\n` +
-                 `Qualité: ${features.qualite_ordinal.toFixed(2)}`;
-    
-    if (navigator.share) {
-        navigator.share({
-            title: 'Analyse de réussite étudiante',
-            text: text,
-            url: window.location.href
-        });
-    } else {
-        navigator.clipboard.writeText(text).then(() => {
-            showNotification('Résultats copiés dans le presse-papier !', 'success');
-        });
-    }
-}
-
-function exportResults() {
-    const features = getFeatures();
-    const data = {
-        features: features,
-        timestamp: new Date().toISOString(),
-        model_version: "2.0.0",
-        threshold: MODEL_THRESHOLD
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    
-    a.href = url;
-    a.download = `analyse_etudiant_${new Date().getTime()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showNotification('Analyse exportée en JSON !', 'success');
-}
-
-function showLoader() {
-    loader.style.display = 'flex';
-}
-
-function hideLoader() {
-    loader.style.display = 'none';
-}
-
-function showNotification(message, type = 'info') {
+// Affichage des notifications
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
     notification.textContent = message;
-    notification.className = 'notification';
     
-    // Add type class
-    if (type === 'success') {
-        notification.style.borderLeft = '5px solid #27ae60';
-        notification.style.background = 'linear-gradient(135deg, #f1f8e9, #e8f5e9)';
-    } else if (type === 'error') {
-        notification.style.borderLeft = '5px solid #e74c3c';
-        notification.style.background = 'linear-gradient(135deg, #ffebee, #fce4ec)';
-    } else {
-        notification.style.borderLeft = '5px solid #3498db';
-        notification.style.background = 'linear-gradient(135deg, #e3f2fd, #e1f5fe)';
-    }
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: ${type === 'success' ? '#10b981' : '#0a3d2e'};
+        color: white;
+        border-radius: 8px;
+        font-weight: 500;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    `;
     
-    notification.classList.add('show');
+    document.body.appendChild(notification);
     
-    // Auto hide
     setTimeout(() => {
-        notification.classList.remove('show');
-    }, 5000);
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
 }
 
-// Service worker pour PWA (optionnel)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(() => {
-            console.log('Service Worker enregistré');
-        }).catch(err => {
-            console.log('Service Worker erreur:', err);
-        });
+// Gestion du chargement
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('active');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('active');
+}
+
+// Analyse principale
+async function analyzeStudent() {
+    const data = {};
+    let isValid = true;
+    
+    featuresConfig.forEach(feature => {
+        const value = parseFloat(document.getElementById(feature.id).value);
+        data[feature.id] = value;
+        
+        if (isNaN(value) || value < 0 || value > 1) {
+            isValid = false;
+            const element = document.getElementById(feature.id);
+            element.style.borderColor = '#dc2626';
+            setTimeout(() => {
+                element.style.borderColor = '';
+            }, 2000);
+        }
+    });
+    
+    if (!isValid) {
+        showNotification('Valeurs invalides détectées', 'error');
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        const result = await simulateAPICall(data);
+        displayResults(result);
+        showNotification('Analyse terminée avec succès', 'success');
+    } catch (error) {
+        showNotification('Erreur lors de l\'analyse', 'error');
+        console.error('Erreur:', error);
+    } finally {
+        hideLoading();
+    }
+}
+
+// Simulation d'appel API
+function simulateAPICall(data) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const totalScore = Object.values(data).reduce((sum, val) => sum + val, 0);
+            const averageScore = totalScore / Object.keys(data).length;
+            const probability = averageScore * 0.9 + Math.random() * 0.1;
+            
+            const result = {
+                probability: Math.min(0.99, Math.max(0.01, probability)),
+                success: probability > 0.6,
+                confidence: probability > 0.8 ? 'Élevée' : probability > 0.6 ? 'Moyenne' : 'Faible',
+                timestamp: new Date().toISOString(),
+                features_analysis: featuresConfig.map(feature => ({
+                    name: feature.name,
+                    value: data[feature.id],
+                    impact: data[feature.id] > 0.7 ? 'Positif' : data[feature.id] > 0.4 ? 'Neutre' : 'À améliorer',
+                    color: data[feature.id] > 0.7 ? '#10b981' : data[feature.id] > 0.4 ? '#f59e0b' : '#dc2626'
+                }))
+            };
+            
+            resolve(result);
+        }, 1500);
     });
 }
+
+// Affichage des résultats
+function displayResults(result) {
+    document.getElementById('resultsPlaceholder').style.display = 'none';
+    
+    const resultsHTML = `
+        <div class="probability-display">
+            <div class="probability-circle" style="--progress: ${result.probability * 100}%">
+                <div class="probability-value">${(result.probability * 100).toFixed(1)}%</div>
+            </div>
+            
+            <div class="result-status ${result.success ? 'success' : 'failure'}">
+                ${result.success ? '✓ RÉUSSITE PRÉDITE' : '⚠ RISQUE D\'ÉCHEC'}
+                <span style="margin-left: 8px; font-size: 0.875rem;">
+                    (Confiance: ${result.confidence})
+                </span>
+            </div>
+        </div>
+        
+        <div style="margin-top: 24px; padding: 20px; background: #f8fafc; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <i class="fas fa-lightbulb" style="color: #f59e0b;"></i>
+                <h3 style="font-size: 1rem; color: #1a1a1a;">
+                    ${result.success ? 'Recommandations d\'optimisation' : 'Actions prioritaires'}
+                </h3>
+            </div>
+            <p style="color: #64748b; line-height: 1.6;">
+                ${result.success ? 
+                    'Le profil présente des caractéristiques favorables à la réussite. Maintenez ces bonnes pratiques.' :
+                    'Des améliorations sont nécessaires dans plusieurs domaines. Concentrez-vous sur les points faibles identifiés.'
+                }
+            </p>
+        </div>
+    `;
+    
+    const container = document.getElementById('resultsContainer');
+    container.innerHTML = resultsHTML;
+    container.style.display = 'block';
+    
+    displayFeatureAnalysis(result.features_analysis);
+}
+
+// Analyse détaillée des caractéristiques
+function displayFeatureAnalysis(features) {
+    let analysisHTML = `
+        <div style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-chart-bar" style="color: #0a3d2e;"></i>
+                <h3 style="font-size: 1.125rem; color: #1a1a1a;">
+                    Analyse par Caractéristique
+                </h3>
+            </div>
+        </div>
+        
+        <div class="analysis-grid">
+    `;
+    
+    features.forEach(feature => {
+        const percentage = feature.value * 100;
+        
+        analysisHTML += `
+            <div class="feature-card">
+                <div class="feature-card-title">
+                    <span>${feature.name}</span>
+                    <span style="color: #0a3d2e; font-weight: 600;">
+                        ${percentage.toFixed(0)}%
+                    </span>
+                </div>
+                
+                <div class="feature-bar">
+                    <div class="feature-fill" style="width: ${percentage}%"></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span style="display: flex; align-items: center; gap: 4px; color: ${feature.color}; font-size: 0.875rem;">
+                        <i class="fas fa-${feature.impact === 'Positif' ? 'check' : feature.impact === 'Neutre' ? 'minus' : 'exclamation'}"></i>
+                        ${feature.impact}
+                    </span>
+                    <span style="font-size: 0.875rem; color: #64748b; font-weight: 500;">
+                        ${feature.value.toFixed(2)}
+                    </span>
+                </div>
+            </div>
+        `;
+    });
+    
+    analysisHTML += '</div>';
+    document.getElementById('detailedResults').innerHTML = analysisHTML;
+}
+
+// Initialisation
+window.onload = function() {
+    initInterface();
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .feature-value.updated {
+            animation: pulse 0.3s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+};
