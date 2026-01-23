@@ -566,7 +566,7 @@ class ProfessionalTrainer:
                 logits = self.model(features)
                 loss = self.criterion(logits.squeeze(), labels)
                 
-                total_loss += loss.item() * features.size(0)
+                total_loss += loss.ien() * features.size(0)
                 probs = torch.sigmoid(logits)
                 all_probs.extend(probs.squeeze().cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
